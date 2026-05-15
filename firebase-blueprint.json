@@ -1,0 +1,41 @@
+{
+  "entities": {
+    "Registration": {
+      "title": "Registration",
+      "description": "Registration for the Madrasa reunion",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name of the participant" },
+        "phone": { "type": "string", "description": "Contact number" },
+        "photo": { "type": "string", "description": "URL or base64 of the participant's photo" },
+        "batch": { "type": "string", "description": "The year or batch of the student" },
+        "status": { 
+          "type": "string", 
+          "enum": ["pending", "approved", "rejected"],
+          "description": "Approval status of the registration"
+        },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of submission" }
+      },
+      "required": ["name", "phone", "batch", "status", "createdAt"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Admin user record",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "description": "Admin email address" }
+      },
+      "required": ["email"]
+    }
+  },
+  "firestore": {
+    "/registrations/{registrationId}": {
+      "schema": "Registration",
+      "description": "Collection of all student registrations"
+    },
+    "/admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Collection of authorized admin users"
+    }
+  }
+}

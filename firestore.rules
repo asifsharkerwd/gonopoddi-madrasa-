@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == 'asifsharker2@gmail.com'
+      );
+    }
+
+    function isValidRegistration(data) {
+      return data.name is string && data.name.size() <= 100 &&
+             data.phone is string && data.phone.size() <= 20 &&
+             data.batch is string && data.batch.size() <= 50 &&
+             (data.photo == null || (data.photo is string && data.photo.size() <= 1000000)) && // Allow large string for base64 if needed
+             data.status in ['pending', 'approved', 'rejected'] &&
+             data.createdAt == request.time;
+    }
+
+    match /registrations/{registrationId} {
+      // Public can list and get ONLY approved registrations
+      allow list: if resource.data.status == 'approved';
+      allow get: if resource.data.status == 'approved' || isAdmin();
+
+      // Anyone can create a registration, but only as 'pending'
+      allow create: if isValidRegistration(request.resource.data) && 
+                      request.resource.data.status == 'pending';
+
+      // Only admins can update (approve/reject)
+      allow update: if isAdmin() && 
+                      request.resource.data.createdAt == resource.data.createdAt; // Immutability
+
+      // Only admins can delete
+      allow delete: if isAdmin();
+    }
+
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Managed manually or via cloud console
+    }
+  }
+}
