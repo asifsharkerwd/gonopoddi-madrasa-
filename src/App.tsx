@@ -119,7 +119,7 @@ export default function App() {
   return (
     <div className="bg-primary min-h-screen selection:bg-accent selection:text-primary">
       {/* Thick External Border Effect */}
-      <div className="fixed inset-0 border-[12px] border-border-dark pointer-events-none z-[100]" />
+      <div className="fixed inset-0 border-[12px] border-border-dark pointer-events-none z-[100] hidden md:block" />
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-primary border-b border-border-dark">
