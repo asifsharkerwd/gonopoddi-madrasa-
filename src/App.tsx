@@ -114,7 +114,22 @@ export default function App() {
     setIsAdminView(false);
   };
 
-  const isAdmin = user?.email ? ADMIN_EMAILS.includes(user.email) : false;
+  const isAdmin = user?.email ? ADMIN_EMAILS.includes(user.email.toLowerCase()) : false;
+
+  const handleGoogleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      setShowLoginModal(false);
+      // Auto-switch to admin view if the user is an admin
+      if (result.user.email && ADMIN_EMAILS.includes(result.user.email.toLowerCase())) {
+        setIsAdminView(true);
+      }
+    } catch(e) { 
+      console.error(e);
+      setLoginError('গুগল লগইন করতে সমস্যা হয়েছে।');
+    }
+  };
 
   return (
     <div className="bg-primary min-h-screen selection:bg-accent selection:text-primary">
@@ -259,13 +274,7 @@ export default function App() {
                   <p className="text-[10px] text-text/30 uppercase text-center mb-4">Or use owner access</p>
                   <button 
                     type="button"
-                    onClick={async () => {
-                      const provider = new GoogleAuthProvider();
-                      try {
-                        await signInWithPopup(auth, provider);
-                        setShowLoginModal(false);
-                      } catch(e) { console.error(e); }
-                    }}
+                    onClick={handleGoogleLogin}
                     className="w-full border-2 border-border-dark text-text/60 font-black py-4 uppercase tracking-[0.2em] text-[10px] hover:border-accent hover:text-accent transition-all flex items-center justify-center gap-2"
                   >
                     Login with Google (Owner Only)
