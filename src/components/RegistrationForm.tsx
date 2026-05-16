@@ -75,35 +75,35 @@ export default function RegistrationForm() {
   }
 
   return (
-    <section id="register" className="py-32 bg-primary relative overflow-hidden border-t border-border-dark">
-      <div className="container mx-auto px-10 relative z-10">
-        <div className="max-w-6xl mx-auto bg-primary border-8 border-border-dark flex flex-col md:flex-row overflow-hidden">
+    <section id="register" className="py-10 md:py-32 bg-primary relative overflow-hidden border-t border-border-dark">
+      <div className="container mx-auto px-5 md:px-10 relative z-10">
+        <div className="max-w-6xl mx-auto bg-primary border-4 md:border-8 border-border-dark flex flex-col md:flex-row overflow-hidden">
           
-          <div className="md:w-1/3 bg-accent p-12 flex flex-col justify-between text-primary">
+          <div className="md:w-1/3 bg-accent p-8 md:p-12 flex flex-col justify-between text-primary">
             <div>
-              <span className="font-mono text-[10px] tracking-[0.4em] uppercase mb-4 block opacity-60">Step 01</span>
-              <h2 className="text-5xl font-black mb-6 uppercase tracking-tighter leading-[0.85]">অংশগ্রহণ<br/>নিশ্চিত করুন</h2>
-              <p className="font-bold opacity-80 leading-relaxed uppercase text-sm">
+              <span className="font-mono text-[8px] md:text-[10px] tracking-[0.4em] uppercase mb-4 block opacity-60">Step 01</span>
+              <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 uppercase tracking-tighter leading-[0.85]">অংশগ্রহণ<br/>নিশ্চিত করুন</h2>
+              <p className="font-bold opacity-80 leading-relaxed uppercase text-[10px] md:text-sm">
                 রেজিস্ট্রেশনের শেষ তারিখ: ২৫ মে ২০২৬ ইং
               </p>
             </div>
             
-            <div className="space-y-6 mt-12 bg-primary/10 p-6">
+            <div className="space-y-4 md:space-y-6 mt-8 md:mt-12 bg-primary/10 p-4 md:p-6">
               {[
                 "রেজিস্ট্রেশন ফি: ৫০০ টাকা",
                 "সম্মাননা স্মারক / স্মরণী",
                 "আয়োজনে দুপুরের খাবার"
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-primary rotate-45" />
-                  <span className="text-xs font-black uppercase tracking-widest">{item}</span>
+                  <div className="w-1.5 h-1.5 bg-primary rotate-45" />
+                  <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">{item}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="md:w-2/3 p-12 bg-[#0d2217]">
-            <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="md:w-2/3 p-8 md:p-12 bg-[#0d2217]">
+            <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
               <div className="flex flex-col items-center mb-8">
                 <button 
                   type="button"

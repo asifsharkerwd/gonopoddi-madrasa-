@@ -20,19 +20,24 @@ const EventDetail = ({ icon, label, value }: EventDetailProps) => (
 
 export default function IftarHero() {
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-32 pb-20">
+    <section className="relative min-h-[85vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden pt-28 md:pt-32 pb-10 md:pb-20">
       {/* Background with Heavy Overlay */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="https://images.unsplash.com/photo-1563823251941-b9989d1e8d97?ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80" 
-          alt="Ramadan Background" 
-          className="w-full h-full object-cover grayscale brightness-[0.2]"
+          src="https://i.ibb.co.com/9HM96h3v/Whats-App-Image-2026-05-16-at-3-38-50-PM.jpg" 
+          alt="Ganopaddi Madrasa" 
+          className="w-full h-full object-cover transition-transform duration-[10s] hover:scale-110"
           referrerPolicy="no-referrer"
+          onError={(e) => {
+            // Fallback if image not found
+            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80';
+            (e.target as HTMLImageElement).className = 'w-full h-full object-cover opacity-30';
+          }}
         />
-        <div className="absolute inset-0 bg-primary/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/95 via-primary/80 to-primary" />
       </div>
 
-      <div className="container mx-auto px-10 relative z-10">
+      <div className="container mx-auto px-5 md:px-10 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -40,32 +45,32 @@ export default function IftarHero() {
           className="max-w-6xl mx-auto"
         >
           <div className="flex flex-col items-start text-left">
-            <span className="text-accent font-mono text-sm tracking-[0.4em] uppercase mb-8 block">
+            <span className="text-accent font-mono text-xs md:text-sm tracking-[0.4em] uppercase mb-6 md:mb-8 block">
               ﷽ • Reunion 2026
             </span>
             
-            <h1 className="text-[7vw] md:text-[6vw] font-black text-text mb-12 tracking-tighter uppercase leading-[0.9] mix-blend-difference">
+            <h1 className="text-[10vw] sm:text-[8vw] md:text-[6vw] font-black text-text mb-8 md:mb-12 tracking-tighter uppercase leading-[0.9] mix-blend-difference">
               সাবেক ছাত্র<br />
-              <span className="text-accent italic translate-x-12 block">পুনর্মিলনী ও দোয়া মাহফিল</span>
+              <span className="text-accent italic translate-x-4 md:translate-x-12 block">পুনর্মিলনী ও দোয়া মাহফিল</span>
             </h1>
             
-            <div className="flex flex-col lg:flex-row items-end gap-12 w-full mt-10">
+            <div className="flex flex-col lg:flex-row items-start lg:items-end gap-8 lg:gap-12 w-full mt-6 md:mt-10">
                <div className="flex-1">
-                <p className="text-xl md:text-2xl text-text opacity-70 leading-relaxed font-medium max-w-2xl">
+                <p className="text-lg md:text-2xl text-text opacity-70 leading-relaxed font-medium max-w-2xl">
                   গণপদ্দী খালেদা আহমেদ নূরানিয়া হাফিজিয়া মাদরাসা এর সাবেক সকল ছাত্র ও সম্মানিত উস্তাদগণের এক ঐতিহ্যবাহী মিলনমেলা।
                 </p>
                </div>
 
-               <div className="flex flex-col sm:flex-row items-center gap-6">
+               <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-6 w-full sm:w-auto">
                 <a 
                   href="#register" 
-                  className="px-12 py-5 bg-accent text-primary font-black uppercase tracking-[0.2em] text-sm hover:bg-text transition-all shadow-2xl"
+                  className="w-full sm:w-auto text-center px-8 md:px-12 py-4 md:py-5 bg-accent text-primary font-black uppercase tracking-[0.2em] text-xs md:text-sm hover:bg-text transition-all shadow-2xl"
                 >
                   রেজিস্ট্রেশন করুন
                 </a>
                 <a 
                   href="#details" 
-                  className="px-12 py-5 bg-transparent border-2 border-border-dark text-text font-black uppercase tracking-[0.2em] text-sm hover:border-accent transition-all"
+                  className="w-full sm:w-auto text-center px-8 md:px-12 py-4 md:py-5 bg-transparent border-2 border-border-dark text-text font-black uppercase tracking-[0.2em] text-xs md:text-sm hover:border-accent transition-all"
                 >
                   বিস্তারিত জানুন
                 </a>
@@ -73,7 +78,7 @@ export default function IftarHero() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 mt-24 border-t border-l border-border-dark">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-0 mt-16 md:mt-24 border-t border-l border-border-dark">
             <div className="border-r border-b border-border-dark">
               <EventDetail 
                 icon={<Calendar size={20} />} 

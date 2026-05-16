@@ -3,12 +3,6 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
-// Polyfill/Fix for environments where window.fetch is read-only
-if (typeof window !== 'undefined' && !window.fetch) {
-  // If fetch is missing, we let it be, but if it exists we ensure nobody tries to overwrite it 
-  // though Firebase usually checks this. This is a common workaround for sandbox window objects.
-}
-
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);

@@ -5,11 +5,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, User, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from './lib/firebase';
 import IftarHero from './components/IftarHero';
 import RegistrationForm from './components/RegistrationForm';
 import BatchMatesList from './components/BatchMatesList';
+import PaymentMethods from './components/PaymentMethods';
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
 import { LayoutDashboard, LogOut, LogIn, X, Lock, Mail } from 'lucide-react';
@@ -18,12 +19,14 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [isAdminView, setIsAdminView] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [loginEmail, setLoginEmail] = useState('');
+  const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const ADMIN_EMAIL = 'asifsharker2@gmail.com';
+  const HARDCODED_ADMIN_EMAIL = 'admin@ganopaddi.reunion';
+  const HARDCODED_PASS = 'sabbir123';
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -36,16 +39,40 @@ export default function App() {
     e.preventDefault();
     setLoginError('');
     setIsLoggingIn(true);
+    const username = loginUsername.trim();
+    const password = loginPassword.trim();
+    
     try {
-      // Mapping 'admin' username to a fixed internal email
-      const email = loginEmail === 'admin' ? 'admin@ganopaddi.reunion' : loginEmail;
-      await signInWithEmailAndPassword(auth, email, loginPassword);
-      setShowLoginModal(false);
-      setLoginEmail('');
-      setLoginPassword('');
+      if (username.toLowerCase() === 'admin' && password === HARDCODED_PASS) {
+        try {
+          await signInWithEmailAndPassword(auth, HARDCODED_ADMIN_EMAIL, password);
+        } catch (authError: any) {
+          // If user doesn't exist, try creating it
+          if (authError.code === 'auth/user-not-found' || authError.code === 'auth/invalid-credential' || authError.code === 'auth/invalid-login-credentials') {
+            await createUserWithEmailAndPassword(auth, HARDCODED_ADMIN_EMAIL, password);
+          } else {
+            throw authError;
+          }
+        }
+        setShowLoginModal(false);
+        setLoginUsername('');
+        setLoginPassword('');
+      } else {
+        // Allow email login for owner as well
+        await signInWithEmailAndPassword(auth, username, password);
+        setShowLoginModal(false);
+        setLoginUsername('');
+        setLoginPassword('');
+      }
     } catch (error: any) {
-      setLoginError('Invalid Credential. Please use "admin" and "sabbir123"');
       console.error('Login failed', error);
+      if (error.code === 'auth/wrong-password') {
+        setLoginError('Invalid Password.');
+      } else if (error.code === 'auth/user-not-found') {
+        setLoginError('User not found.');
+      } else {
+        setLoginError('Invalid Username or Password.');
+      }
     } finally {
       setIsLoggingIn(false);
     }
@@ -56,7 +83,7 @@ export default function App() {
     setIsAdminView(false);
   };
 
-  const isAdmin = user?.email === ADMIN_EMAIL;
+  const isAdmin = user?.email === ADMIN_EMAIL || user?.email === HARDCODED_ADMIN_EMAIL;
 
   return (
     <div className="bg-primary min-h-screen selection:bg-accent selection:text-primary">
@@ -65,11 +92,11 @@ export default function App() {
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-primary border-b border-border-dark">
-        <div className="container mx-auto px-10 h-24 flex items-center justify-between">
+        <div className="container mx-auto px-5 md:px-10 h-20 md:h-24 flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-accent font-mono text-[10px] tracking-[0.3em] uppercase mb-1">সাবেক ছাত্র সংসদ</span>
+            <span className="text-accent font-mono text-[8px] md:text-[10px] tracking-[0.3em] uppercase mb-1">সাবেক ছাত্র সংসদ</span>
             <div className="flex items-center gap-3">
-              <span className="text-text font-black text-3xl tracking-tight uppercase leading-none">
+              <span className="text-text font-black text-xl md:text-3xl tracking-tight uppercase leading-none">
                 গণপদ্দী <span className="text-accent italic">মাদরাসা</span>
               </span>
             </div>
@@ -143,16 +170,16 @@ export default function App() {
               
               <form onSubmit={handleEmailLogin} className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-mono font-bold text-accent uppercase tracking-[0.3em] block">Email Address</label>
+                  <label className="text-[10px] font-mono font-bold text-accent uppercase tracking-[0.3em] block">Username / Email</label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-text/30" size={16} />
                     <input 
                       required
-                      type="email"
-                      value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
-                      placeholder="ADMIN@EXAMPLE.COM"
-                      className="w-full bg-border-dark/50 border-2 border-border-dark py-4 pl-12 pr-4 text-text placeholder:text-text/20 focus:outline-none focus:border-accent font-black uppercase text-sm transition-all"
+                      type="text"
+                      value={loginUsername}
+                      onChange={(e) => setLoginUsername(e.target.value)}
+                      placeholder="ADMIN"
+                      className="w-full bg-border-dark/50 border-2 border-border-dark py-4 pl-12 pr-4 text-text placeholder:text-text/20 focus:outline-none focus:border-accent font-bold text-xs transition-all"
                     />
                   </div>
                 </div>
@@ -167,7 +194,7 @@ export default function App() {
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-border-dark/50 border-2 border-border-dark py-4 pl-12 pr-4 text-text placeholder:text-text/20 focus:outline-none focus:border-accent font-black uppercase text-sm transition-all"
+                      className="w-full bg-border-dark/50 border-2 border-border-dark py-4 pl-12 pr-4 text-text placeholder:text-text/20 focus:outline-none focus:border-accent font-bold text-xs transition-all"
                     />
                   </div>
                 </div>
@@ -232,16 +259,16 @@ export default function App() {
               </div>
               <IftarHero />
               
-              <section id="details" className="py-32 border-y border-border-dark bg-primary relative z-10">
-                <div className="container mx-auto px-10">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+              <section id="details" className="py-10 md:py-32 border-y border-border-dark bg-primary relative z-10">
+                <div className="container mx-auto px-5 md:px-10">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
                     <div className="relative text-left">
-                      <div className="h-1 bg-accent w-24 mb-10"></div>
-                      <span className="text-accent font-mono text-xs tracking-[0.4em] uppercase block mb-6">The Purpose</span>
-                      <h2 className="text-5xl md:text-6xl font-black text-text mb-10 tracking-tighter uppercase leading-[0.9]">
+                      <div className="h-1 bg-accent w-24 mb-6 md:mb-10"></div>
+                      <span className="text-accent font-mono text-[10px] md:text-xs tracking-[0.4em] uppercase block mb-6">The Purpose</span>
+                      <h2 className="text-3xl md:text-6xl font-black text-text mb-6 md:text-10 tracking-tighter uppercase leading-[0.9]">
                         স্মৃতিচারণ ও<br/><span className="text-accent italic">দোয়া মাহফিল</span>
                       </h2>
-                      <p className="text-text/70 text-xl leading-relaxed mb-10 max-w-lg">
+                      <p className="text-text/70 text-base md:text-xl leading-relaxed mb-10 max-w-lg">
                         আমাদের প্রিয় উস্তাদে মুহতারাম মরহুম হাফেজ শফিকুল ইসলাম ও শাহজাহান হুজুর এর কর্মময় জীবন ও স্মৃতিচারণ নিয়ে আলোচনা এবং তাঁদের রূহের মাগফিরাত কামনায় বিশেষ দোয়া।
                       </p>
                       <div className="grid grid-cols-2 gap-8">
@@ -252,35 +279,38 @@ export default function App() {
                           "স্মৃতিচারণ সভা"
                         ].map((item, i) => (
                           <div key={i} className="flex items-center gap-4">
-                            <div className="w-2 h-2 bg-accent rotate-45" />
-                            <p className="text-text font-black uppercase text-sm tracking-wide">{item}</p>
+                            <div className="w-1.5 h-1.5 bg-accent rotate-45" />
+                            <p className="text-text font-black uppercase text-[10px] md:text-sm tracking-wide">{item}</p>
                           </div>
                         ))}
                       </div>
                     </div>
                     
                     <div className="relative">
-                      <div className="aspect-[4/5] overflow-hidden border-2 border-border-dark shadow-2xl relative z-10">
+                      <div className="aspect-[4/5] overflow-hidden border-4 border-border-dark shadow-2xl relative z-10 group">
                         <img 
-                          src="https://images.unsplash.com/photo-1542751110-97646af1f5c1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80" 
-                          alt="Gathering" 
-                          className="w-full h-full object-cover grayscale brightness-50"
+                          src="https://i.ibb.co.com/9HM96h3v/Whats-App-Image-2026-05-16-at-3-38-50-PM.jpg" 
+                          alt="Ganopaddi Madrasa Background" 
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          referrerPolicy="no-referrer"
                         />
                       </div>
-                      <div className="absolute -bottom-8 -left-8 w-32 h-32 border-l-4 border-b-4 border-accent z-20" />
+                      <div className="absolute -bottom-6 -left-6 w-32 h-32 border-l-4 border-b-4 border-accent z-20" />
+                      <div className="absolute -top-6 -right-6 w-32 h-32 border-r-4 border-t-4 border-accent opacity-20" />
                     </div>
                   </div>
                 </div>
               </section>
 
               <RegistrationForm />
+              <PaymentMethods />
               <BatchMatesList />
             </motion.div>
           )}
         </AnimatePresence>
       </main>
 
-      <Footer />
+      <Footer onAdminLogin={() => setShowLoginModal(true)} />
     </div>
   );
 }

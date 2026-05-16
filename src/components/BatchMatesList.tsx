@@ -40,18 +40,18 @@ export default function BatchMatesList() {
   }, []);
 
   return (
-    <section className="py-32 bg-primary border-t border-border-dark">
-      <div className="container mx-auto px-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-20 border-b-2 border-border-dark pb-12">
+    <section className="py-10 md:py-32 bg-primary border-t border-border-dark">
+      <div className="container mx-auto px-5 md:px-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 mb-16 md:mb-20 border-b-2 border-border-dark pb-8 md:pb-12">
           <div>
-            <span className="text-accent font-mono text-xs tracking-[0.4em] uppercase block mb-4">Community</span>
-            <h2 className="text-5xl md:text-6xl font-black text-text tracking-tighter uppercase leading-[0.85]">
+            <span className="text-accent font-mono text-[10px] tracking-[0.4em] uppercase block mb-4">Community</span>
+            <h2 className="text-4xl md:text-6xl font-black text-text tracking-tighter uppercase leading-[0.85]">
               কে কে<br/> <span className="text-accent italic">আসছেন?</span>
             </h2>
           </div>
-          <div className="flex flex-col items-end">
-            <span className="text-accent font-black text-8xl leading-none">{mates.length}</span>
-            <span className="text-text/40 font-mono text-[10px] uppercase tracking-widest">রেজিস্ট্রেশন সম্পূর্ণ</span>
+          <div className="flex flex-col items-start md:items-end">
+            <span className="text-accent font-black text-6xl md:text-8xl leading-none">{mates.length}</span>
+            <span className="text-text/40 font-mono text-[8px] md:text-[10px] uppercase tracking-widest">রেজিস্ট্রেশন সম্পূর্ণ</span>
           </div>
         </div>
 
@@ -87,14 +87,14 @@ export default function BatchMatesList() {
                 </div>
 
                 {/* Content Area - Dark Footer Style */}
-                <div className="w-full px-4 py-8 bg-[#09140f] flex flex-col items-center">
-                  <h4 className="text-xl md:text-2xl font-black text-white mb-2 tracking-tight">
+                <div className="w-full px-3 py-3 md:py-5 flex flex-col items-center">
+                  <h4 className="text-base md:text-xl font-black text-white mb-0.5 tracking-tight">
                     {mate.name}
                   </h4>
-                  <div className="text-accent font-black text-xs md:text-sm uppercase tracking-[0.15em] mb-3">
-                    {mate.batch}
+                  <div className="text-accent font-black text-[8px] md:text-[10px] uppercase tracking-[0.15em] mb-1.5">
+                    SSC BATCH {mate.batch}
                   </div>
-                  <div className="text-text/40 font-mono text-[10px] md:text-xs tracking-[0.2em]">
+                  <div className="text-text/40 font-mono text-[8px] md:text-[10px] tracking-[0.1em]">
                     {mate.phone}
                   </div>
                 </div>
