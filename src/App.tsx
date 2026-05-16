@@ -13,7 +13,7 @@ import BatchMatesList from './components/BatchMatesList';
 import PaymentMethods from './components/PaymentMethods';
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
-import { LayoutDashboard, LogOut, LogIn, X, Lock, Mail } from 'lucide-react';
+import { LayoutDashboard, LogOut, LogIn, X, Lock, Mail, Eye, EyeOff } from 'lucide-react';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -21,6 +21,7 @@ export default function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
@@ -47,9 +48,19 @@ export default function App() {
         try {
           await signInWithEmailAndPassword(auth, HARDCODED_ADMIN_EMAIL, password);
         } catch (authError: any) {
-          // If user doesn't exist, try creating it
+          // In modern Firebase, 'auth/invalid-credential' can mean user not found or wrong password
+          // We try to create only if we are absolutely sure the local hardcoded creds match
           if (authError.code === 'auth/user-not-found' || authError.code === 'auth/invalid-credential' || authError.code === 'auth/invalid-login-credentials') {
-            await createUserWithEmailAndPassword(auth, HARDCODED_ADMIN_EMAIL, password);
+            try {
+              await createUserWithEmailAndPassword(auth, HARDCODED_ADMIN_EMAIL, password);
+            } catch (createErr: any) {
+              // If creation fails with email-already-in-use, it means password in DB might be different
+              if (createErr.code === 'auth/email-already-in-use') {
+                setLoginError('Admin account exists but password mismatch in database. Try owner login.');
+                return;
+              }
+              throw createErr;
+            }
           } else {
             throw authError;
           }
@@ -57,21 +68,33 @@ export default function App() {
         setShowLoginModal(false);
         setLoginUsername('');
         setLoginPassword('');
+        setShowPassword(false);
       } else {
         // Allow email login for owner as well
         await signInWithEmailAndPassword(auth, username, password);
         setShowLoginModal(false);
         setLoginUsername('');
         setLoginPassword('');
+        setShowPassword(false);
       }
     } catch (error: any) {
       console.error('Login failed', error);
-      if (error.code === 'auth/wrong-password') {
+      const errorCode = error.code || '';
+      
+      if (errorCode.includes('password')) {
         setLoginError('Invalid Password.');
-      } else if (error.code === 'auth/user-not-found') {
-        setLoginError('User not found.');
-      } else {
+      } else if (errorCode.includes('user-not-found')) {
+        setLoginError('User Not Found.');
+      } else if (errorCode.includes('invalid-credential') || errorCode.includes('invalid-login-credentials')) {
         setLoginError('Invalid Username or Password.');
+      } else if (errorCode.includes('too-many-requests')) {
+        setLoginError('Too many failed attempts. Please try again later.');
+      } else if (errorCode.includes('network-request-failed')) {
+        setLoginError('নেটওয়ার্ক ইরর! আপনার ইন্টারনেট বা ফায়ারবেস কনফিগারেশনে সমস্যা হতে পারে। নিশ্চিত করুন যে Email/Password প্রোভাইডার এনাবল করেছেন এবং কোনো অ্যাড-ব্লকার অফ আছে।');
+      } else if (errorCode.includes('operation-not-allowed')) {
+        setLoginError('ফায়ারবেস কনসোলে Email/Password এনাবল করা নেই। দয়া করে Authentication > Sign-in method এ গিয়ে এটি এনাবল করুন। অথবা Google ইমেইল দিয়ে লগইন করুন।');
+      } else {
+        setLoginError(`লগইন ইরর: ${errorCode || 'Unknown error'}`);
       }
     } finally {
       setIsLoggingIn(false);
@@ -190,18 +213,31 @@ export default function App() {
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-text/30" size={16} />
                     <input 
                       required
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-border-dark/50 border-2 border-border-dark py-4 pl-12 pr-4 text-text placeholder:text-text/20 focus:outline-none focus:border-accent font-bold text-xs transition-all"
+                      className="w-full bg-border-dark/50 border-2 border-border-dark py-4 pl-12 pr-12 text-text placeholder:text-text/20 focus:outline-none focus:border-accent font-bold text-xs transition-all"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-text/30 hover:text-accent transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
                   </div>
                 </div>
 
                 {loginError && (
                   <p className="text-red-500 text-[10px] font-bold uppercase tracking-widest">{loginError}</p>
                 )}
+
+                <div className="bg-accent/5 p-4 border border-accent/20">
+                  <p className="text-[9px] text-accent/70 uppercase leading-relaxed">
+                    <span className="font-bold">হিঞ্চ:</span> ইউজারনেম লগইনের জন্য অবশ্যই ফায়ারবেস কনসোলে <span className="text-accent underline">Email/Password</span> এনাবল থাকতে হবে। যদি 'Network Error' দেখেন, তবে Google ইমেইল দিয়ে ট্রাই করুন।
+                  </p>
+                </div>
 
                 <button 
                   disabled={isLoggingIn}
