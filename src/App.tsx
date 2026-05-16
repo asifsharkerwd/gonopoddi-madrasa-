@@ -25,7 +25,12 @@ export default function App() {
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const ADMIN_EMAIL = 'asifsharker2@gmail.com';
+  const ADMIN_EMAILS = [
+    'asifsharker2@gmail.com',
+    'sabbir786@gmail.com',
+    'eventnakla@gmail.com',
+    'admin@ganopaddi.reunion'
+  ];
   const HARDCODED_ADMIN_EMAIL = 'admin@ganopaddi.reunion';
   const HARDCODED_PASS = 'sabbir123';
 
@@ -48,15 +53,16 @@ export default function App() {
         try {
           await signInWithEmailAndPassword(auth, HARDCODED_ADMIN_EMAIL, password);
         } catch (authError: any) {
+          const authCode = authError.code || '';
           // In modern Firebase, 'auth/invalid-credential' can mean user not found or wrong password
           // We try to create only if we are absolutely sure the local hardcoded creds match
-          if (authError.code === 'auth/user-not-found' || authError.code === 'auth/invalid-credential' || authError.code === 'auth/invalid-login-credentials') {
+          if (authCode.includes('user-not-found') || authCode.includes('invalid-credential') || authCode.includes('invalid-login-credentials')) {
             try {
               await createUserWithEmailAndPassword(auth, HARDCODED_ADMIN_EMAIL, password);
             } catch (createErr: any) {
               // If creation fails with email-already-in-use, it means password in DB might be different
               if (createErr.code === 'auth/email-already-in-use') {
-                setLoginError('Admin account exists but password mismatch in database. Try owner login.');
+                setLoginError('Admin account exists but password mismatch. Use owner login or reset.');
                 return;
               }
               throw createErr;
@@ -69,6 +75,7 @@ export default function App() {
         setLoginUsername('');
         setLoginPassword('');
         setShowPassword(false);
+        setIsAdminView(true);
       } else {
         // Allow email login for owner as well
         await signInWithEmailAndPassword(auth, username, password);
@@ -76,25 +83,26 @@ export default function App() {
         setLoginUsername('');
         setLoginPassword('');
         setShowPassword(false);
+        setIsAdminView(true);
       }
     } catch (error: any) {
       console.error('Login failed', error);
       const errorCode = error.code || '';
       
       if (errorCode.includes('password')) {
-        setLoginError('Invalid Password.');
+        setLoginError('ভুল পাসওয়ার্ড। আবার চেষ্টা করুন।');
       } else if (errorCode.includes('user-not-found')) {
-        setLoginError('User Not Found.');
+        setLoginError('ইউজার পাওয়া যায়নি।');
       } else if (errorCode.includes('invalid-credential') || errorCode.includes('invalid-login-credentials')) {
-        setLoginError('Invalid Username or Password.');
+        setLoginError('ইউজারনেম বা পাসওয়ার্ড ভুল।');
       } else if (errorCode.includes('too-many-requests')) {
-        setLoginError('Too many failed attempts. Please try again later.');
+        setLoginError('অতিরিক্ত অ্যাটেম্পট! একটু পরে চেষ্টা করুন।');
       } else if (errorCode.includes('network-request-failed')) {
-        setLoginError('নেটওয়ার্ক ইরর! আপনার ইন্টারনেট বা ফায়ারবেস কনফিগারেশনে সমস্যা হতে পারে। নিশ্চিত করুন যে Email/Password প্রোভাইডার এনাবল করেছেন এবং কোনো অ্যাড-ব্লকার অফ আছে।');
+        setLoginError('নেটওয়ার্ক ইরর! দয়া করে আপনার ইন্টারনেট চেক করুন এবং নিশ্চিত করুন যে Firebase-এ Email/Password এনাবল করা আছে। (অ্যাড-ব্লকার অফ রাখুন)');
       } else if (errorCode.includes('operation-not-allowed')) {
-        setLoginError('ফায়ারবেস কনসোলে Email/Password এনাবল করা নেই। দয়া করে Authentication > Sign-in method এ গিয়ে এটি এনাবল করুন। অথবা Google ইমেইল দিয়ে লগইন করুন।');
+        setLoginError('Email/Password প্রোভাইডার এনাবল করা নেই। Google দিয়ে ট্রাই করুন।');
       } else {
-        setLoginError(`লগইন ইরর: ${errorCode || 'Unknown error'}`);
+        setLoginError(`লগইন সমস্যা: ${errorCode || 'Unknown'}`);
       }
     } finally {
       setIsLoggingIn(false);
@@ -106,7 +114,7 @@ export default function App() {
     setIsAdminView(false);
   };
 
-  const isAdmin = user?.email === ADMIN_EMAIL || user?.email === HARDCODED_ADMIN_EMAIL;
+  const isAdmin = user?.email ? ADMIN_EMAILS.includes(user.email) : false;
 
   return (
     <div className="bg-primary min-h-screen selection:bg-accent selection:text-primary">

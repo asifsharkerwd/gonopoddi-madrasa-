@@ -21,7 +21,7 @@ export default function BatchMatesList() {
     const q = query(
       collection(db, 'registrations'), 
       where('status', '==', 'approved'),
-      orderBy('createdAt', 'desc')
+      orderBy('createdAt', 'asc')
     );
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -92,7 +92,7 @@ export default function BatchMatesList() {
                     {mate.name}
                   </h4>
                   <div className="text-accent font-black text-[8px] md:text-[10px] uppercase tracking-[0.15em] mb-1.5">
-                    SSC BATCH {mate.batch}
+                    {mate.batch}
                   </div>
                   <div className="text-text/40 font-mono text-[8px] md:text-[10px] tracking-[0.1em]">
                     {mate.phone}
