@@ -79,7 +79,7 @@ export default function PaymentMethods() {
 
           <div className="mt-12 md:mt-16 bg-[#1a0d0d] border border-red-900/30 p-6 md:p-8 rounded-2xl text-center">
             <p className="text-red-400 font-bold text-sm md:text-base leading-relaxed">
-              <span className="text-accent">বিঃ দ্রঃ</span> সেন্ড মানি করার সময় অবশ্যই আপনার নাম দিবেন এবং ৫ টাকা ক্যাশ আউট ফী যোগ করবেন।
+              <span className="text-accent">বিঃ দ্রঃ</span> সেন্ড মানি করার সময় অবশ্যই আপনার নাম দিবেন এবং ১০ টাকা ক্যাশ আউট ফী যোগ করবেন।
             </p>
           </div>
         </div>

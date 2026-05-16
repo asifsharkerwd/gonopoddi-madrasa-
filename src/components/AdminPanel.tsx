@@ -23,7 +23,7 @@ export default function AdminPanel() {
 
   useEffect(() => {
     setError(null);
-    const q = query(collection(db, 'registrations'), orderBy('createdAt', 'asc'));
+    const q = query(collection(db, 'registrations'), orderBy('createdAt', 'desc'));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({
